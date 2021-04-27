@@ -12,10 +12,10 @@ const pool = new Pool({
 });
 
 const getPollingPlaces = async (req, res) => {
-    const response = await pool.query('SELECT id, name, hand_count, machine_count, count_date::timestamp::date FROM sample_audit ORDER BY id ASC');
+    const response = await pool.query('SELECT id, county_id, name, hand_count, machine_count, count_date::timestamp::date FROM sample_audit ORDER BY id ASC');
     console.log(response.rows);
   try {
-      const response = await pool.query("SELECT id, name, hand_count, machine_count, count_date::timestamp::date FROM sample_audit ORDER BY id ASC");
+      const response = await pool.query("SELECT id, county_id, name, hand_count, machine_count, count_date::timestamp::date FROM sample_audit ORDER BY id ASC");
     res.status(200).json(response.rows);
   } catch (err) {
     res.json(err);
@@ -36,13 +36,13 @@ const getPollingPlaceById = async (req, res) => {
 
 const createPollingPlace = async (req, res) => {
     try {
-        const { name, hand_count, machine_count, count_date } = req.body;
+        const { county_id,name, hand_count, machine_count, count_date } = req.body;
 	const response = await pool.query(
-	    "INSERT INTO sample_audit (name, hand_count, machine_count, count_date) VALUES ($1, $2, $3, $4)",
-        [name, hand_count, machine_count, count_date]
+	    "INSERT INTO sample_audit (county_id, name, hand_count, machine_count, count_date) VALUES ($1, $2, $3, $4, $5)",
+        [ county_id,name, hand_count, machine_count, count_date]
     );
-        console.log("INSERT INTO sample_audit (name, hand_count, machine_count, count_date) VALUES ($1, $2, $3, $4)",
-            [name, hand_count, machine_count, count_date])
+        console.log("INSERT INTO sample_audit (county_id, name, hand_count, machine_count, count_date) VALUES ($1, $2, $3, $4,$5)",
+            [county_id, name, hand_count, machine_count, count_date])
 	res.json({
 	    message: "A new polling places was created",
 	    body: {

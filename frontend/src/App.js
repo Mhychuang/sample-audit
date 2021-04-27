@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Button, Container, Form, Modal, Table, Alert } from "react-bootstrap";
+import { Button, Container, Form, Modal, Table, Alert, useFilters } from "react-bootstrap";
 import { useTable } from "react-table";
 import axios from "axios";
 
@@ -9,6 +9,7 @@ function App() {
     const [pollingPlace, setpollingPlace] = useState([]);
     const [newpollingPlace, setnewpollingPlace] = useState({
         id: "",
+        county_id: "",
         name: "",
         hand_count: "",
         machine_count: "",
@@ -16,6 +17,7 @@ function App() {
     });
     const [updatePollingPlace, setupdatepollingPlace] = useState({
         updateId: newpollingPlace.id,
+        updateCountyId: newpollingPlace.county_id,
         updateName: newpollingPlace.name,
         updatehand_count: newpollingPlace.hand_count,
         updatemachine_count: newpollingPlace.machine_count,
@@ -33,11 +35,16 @@ function App() {
     const [showModal, setShowModal] = useState(false);
     const [actualUpdatingId, setActualUpdatingId] = useState();
     const [actualUpdatingName, setActualUpdatingName] = useState();
+    const [actualUpdatingCountyId, setActualUpdatingCountyId] = useState();
     const columns = React.useMemo(
         () => [
             {
-                Header: "Polling Place ID",
+                Header: "ID",
                 accessor: "id",
+            },
+            {
+                Header: "County ID",
+                accessor: "county_id",
             },
             {
                 Header: "Name",
@@ -63,7 +70,7 @@ function App() {
                         <Button
                             variant="info"
                             size="sm"
-                            onClick={() => handleOpenModal(row.cell.row.original.id, row.cell.row.original.name)}
+                            onClick={() => handleOpenModal(row.cell.row.original.id, row.cell.row.original.name, row.cell.row.original.county_id)}
                         >
                             Edit
             </Button>{" "}
@@ -106,7 +113,7 @@ function App() {
     const handleChange = (e) => {
 
         let checkList = ['hand_count', 'machine_count']
-        console.log(checkList.includes(e.target.name));
+        //console.log(checkList.includes(e.target.name));
         if (checkList.includes(e.target.name) & isNaN(e.target.value)) {
             seterrorStatus({
                 ...errorStatus,
@@ -143,6 +150,7 @@ function App() {
             `http://localhost:4000/pollingplaces`,
             newpollingPlace
         );
+        console.log(newpollingPlace);
         console.log(res.data)
         if (res.data.name === "error") alert("This polling place already exists");
         else {
@@ -161,6 +169,7 @@ function App() {
             actualUpdatingId,
             {
                 id: updatePollingPlace.id,
+                county_id:updatePollingPlace.updateCountyId,
                 hand_count: updatePollingPlace.updatehand_count,
                 machine_count: updatePollingPlace.updatemachine_count,
                 count_date: updatePollingPlace.updatecount_date,
@@ -177,10 +186,11 @@ function App() {
         }
     };
 
-    const handleOpenModal = (id, name) => {
+    const handleOpenModal = (id, name,countyid) => {
         setShowModal(true);
         setActualUpdatingId(id);
         setActualUpdatingName(name);
+        setActualUpdatingCountyId(countyid)
 
     };
 
@@ -206,6 +216,17 @@ function App() {
             <h1>Polling Places Counts </h1>
 
             <Form onSubmit={handleSubmit}>
+                <Form.Group controlId="">
+                    <Form.Label>County ID </Form.Label>
+                    <Form.Control
+                        name="county_id"
+                        value={newpollingPlace.county_id}
+                        type="text"
+                        onChange={handleChange}
+                    />
+                </Form.Group>
+
+
                 <Form.Group controlId="">
                     <Form.Label>Polling Place name  <span style={{ color: "red" }}>{errorStatus.name}</span></Form.Label>
                     <Form.Control
@@ -291,7 +312,7 @@ function App() {
 
             <Modal show={showModal} onHide={handleCloseModal}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Editing {actualUpdatingName}</Modal.Title>
+                    <Modal.Title>Editing county: { setActualUpdatingCountyId}:{actualUpdatingName}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Form onSubmit={handleUpdate}>
